@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>NP | GLOBAL LEADERBOARD</title>
+    <style>
+        :root { --blue: #00f2ff; --purple: #bc13fe; --gold: #ffd700; --red: #ff4d4d; }
+        body { background: #0a0a0c; color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
+        .container { max-width: 1000px; margin: 0 auto; padding: 40px 20px; }
+        
+        h1 { font-size: 3.5rem; text-align: center; text-transform: uppercase; color: var(--blue); text-shadow: 0 0 20px var(--blue); margin: 0; }
+        .prize-pool { text-align: center; color: var(--gold); font-size: 1.5rem; font-weight: bold; margin-bottom: 30px; letter-spacing: 2px; }
+
+        .leaderboard { width: 100%; border-collapse: separate; border-spacing: 0 10px; }
+        .row { background: rgba(255, 255, 255, 0.03); transition: 0.3s; }
+        .row:hover { background: rgba(255, 255, 255, 0.07); }
+        .row td { padding: 20px; border-top: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05); }
+        
+        /* СТИЛЬ ТВОЕЙ КОМАНДЫ */
+        .my-team { background: rgba(255, 215, 0, 0.1) !important; border: 1px solid var(--gold) !important; }
+        .my-team td { color: var(--gold); font-weight: bold; }
+
+        .btn-claim { 
+            background: transparent; border: 1px solid var(--blue); color: var(--blue); 
+            padding: 8px 15px; cursor: pointer; text-transform: uppercase; font-size: 0.7rem;
+            transition: 0.3s; border-radius: 4px;
+        }
+        .btn-claim:hover { background: var(--blue); color: #000; box-shadow: 0 0 15px var(--blue); }
+        .my-team .btn-claim { border-color: var(--gold); color: var(--gold); }
+        .my-team .btn-claim:hover { background: var(--gold); color: #000; }
+
+        /* ОКНО СЕРТИФИКАТА */
+        #cert-overlay {
+            display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 1000; justify-content: center; align-items: center;
+        }
+        .certificate {
+            width: 80%; max-width: 700px; padding: 50px; border: 10px double var(--gold);
+            background: #111; text-align: center; position: relative;
+        }
+        .certificate h2 { font-size: 3rem; color: var(--gold); margin: 0; }
+        .certificate p { font-size: 1.5rem; margin: 20px 0; }
+        .close-btn { position: absolute; top: 10px; right: 20px; font-size: 2rem; cursor: pointer; color: #555; }
+    </style>
+</head>
+<body>
+
+<div id="cert-overlay">
+    <div class="certificate">
+        <span class="close-btn" onclick="closeCert()">×</span>
+        <h2>CERTIFICATE</h2>
+        <p>Настоящим подтверждается, что</p>
+        <h1 style="color: #fff;">NP | S-KAMRON</h1>
+        <p>Занимает почетное <span style="color: var(--gold);">2 МЕСТО</span> в глобальном рейтинге</p>
+        <div style="margin-top: 40px; border-top: 1px solid #333; padding-top: 20px; color: var(--gold);">
+            OFFICIAL NEON PHANTOMS DOCUMENT
+        </div>
+    </div>
+</div>
+
+<div class="container">
+    <h1>GLOBAL RANKING</h1>
+    <div class="prize-pool">🏆 TOTAL PRIZE: 1.000.000 RUB</div>
+
+    <table class="leaderboard">
+        <tbody id="table-body"></tbody>
+    </table>
+</div>
+
+<script>
+    const teams = [
+        { n: "Apex Predators", p: "15,840", s: "PRO", prize: "500.000 RUB" },
+        { n: "NEON PHANTOMS | S-KAMRON", p: "15,210", s: "LEGENDARY", prize: "CERTIFICATE" },
+        { n: "Shadow Walkers", p: "14,100", s: "PRO", prize: "200.000 RUB" },
+        { n: "Cyber Dragons", p: "13,950", s: "ELITE" },
+        { n: "Night Hunters", p: "13,500", s: "ELITE" },
+        { n: "Void Runners", p: "12,800", s: "MASTER" },
+        { n: "Steel Titans", p: "12,100", s: "MASTER" },
+        { n: "Glitch Monsters", p: "11,900", s: "DIAMOND" },
+        { n: "Phantom Blades", p: "11,200", s: "DIAMOND" },
+        { n: "Storm Bringers", p: "10,800", s: "PLATINUM" },
+        { n: "Dark Matter", p: "10,500", s: "PLATINUM" },
+        { n: "Binary Kings", p: "9,900", s: "GOLD" },
+        { n: "Neon Ghosts", p: "9,400", s: "GOLD" },
+        { n: "Silent Killers", p: "8,800", s: "SILVER" },
+        { n: "Alpha Squad", p: "8,200", s: "SILVER" },
+        { n: "Omega Zero", p: "7,900", s: "BRONZE" },
+        { n: "Pixel Warriors", p: "7,500", s: "BRONZE" },
+        { n: "Iron Reapers", p: "7,100", s: "BRONZE" },
+        { n: "Vector Legion", p: "6,500", s: "ROOKIE" },
+        { n: "Total Chaos", p: "5,800", s: "ROOKIE" }
+    ];
+
+    const tbody = document.getElementById('table-body');
+    teams.forEach((team, i) => {
+        const row = document.createElement('tr');
+        row.className = (i === 1) ? 'row my-team' : 'row';
+        row.innerHTML = `
+            <td style="width: 50px; font-weight: 900;">#${i + 1}</td>
+            <td>${team.n}</td>
+            <td style="color: var(--blue);">${team.p} PTS</td>
+            <td style="text-align: right;">
+                <button class="btn-claim" onclick="claim(${i})">Claim Reward</button>
+            </td>
+        `;
+        tbody.appendChild(row);
+    });
+
+    function claim(index) {
+        if(index === 0) alert("ПРИЗ: 500.000 РУБЛЕЙ. Ошибка доступа: Только для капитана Apex Predators.");
+        else if(index === 1) document.getElementById('cert-overlay').style.display = 'flex';
+        else if(index === 2) alert("ПРИЗ: 200.000 РУБЛЕЙ. Ошибка: Баланс заморожен.");
+        else alert("Награда пока недоступна для этого места.");
+    }
+
+    function closeCert() { document.getElementById('cert-overlay').style.display = 'none'; }
+</script>
+</body>
+</html>
